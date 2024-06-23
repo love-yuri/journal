@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:journal/page/detail.dart';
 import 'package:journal/page/home.dart';
 
 class RouteManager {
   static const String home = '/';
+  static const String detail = '/detail';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case home:
         return buildPage(
           const HomePage(),
+          settings: settings,
+        );
+      case detail:
+        return buildPage(
+          const DetailPage(),
           settings: settings,
         );
       default:
