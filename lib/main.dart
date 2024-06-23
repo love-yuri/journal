@@ -6,7 +6,7 @@
  */
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:journal/common/route.dart';
+import 'package:journal/base/route.dart';
 import 'package:journal/utils/screen.dart';
 
 void main() {
