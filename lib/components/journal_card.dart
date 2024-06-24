@@ -1,5 +1,12 @@
+/*
+ * @Author: love-yuri yuri2078170658@gmail.com
+ * @Date: 2024-06-23 21:56:57
+ * @LastEditTime: 2024-06-24 18:58:47
+ * @Description: 卡片
+ */
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:journal/utils/utils.dart';
 
 class JournalCard extends StatefulWidget {
   const JournalCard({super.key});
@@ -21,20 +28,20 @@ class _JournalCardState extends State<JournalCard> {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(children: [
-        const Row(
+         Row(
           children: [
-            Text(
+            const Text(
               "12月30日",
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Expanded(child: SizedBox()),
+            const Expanded(child: SizedBox()),
             Text(
               "10:00 AM",
               style: TextStyle(
-                color: Colors.grey,
+                color: Utils.hexToColor("#94A3B8"),
                 fontSize: 15,
                 fontWeight: FontWeight.bold,
               ),
