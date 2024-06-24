@@ -5,5 +5,5 @@
  * @Description: 静态文件加载
  */
 class AssetsManager {
-  static const String homeBg = "assets/bg/ec006809-cb34-42b9-bc80-5902d06419f7.jpg";
+  static const String homeBg = "assets/bg/1.jpg";
 }
