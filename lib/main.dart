@@ -24,10 +24,15 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return const MaterialApp (
+        return MaterialApp(
           debugShowCheckedModeBanner: false,
           onGenerateRoute: RouteManager.generateRoute,
           initialRoute: RouteManager.home,
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+            textTheme: const TextTheme(),
+            fontFamily: "PingFang",
+          ),
           // home: HomePage(),
         );
       },
