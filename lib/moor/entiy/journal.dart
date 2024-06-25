@@ -2,7 +2,7 @@
  * @Author: love-yuri yuri2078170658@gmail.com
  * @Date: 2024-06-24 22:19:03
  * @LastEditTime: 2024-06-24 22:41:35
- * @Description: 笔记实体类
+ * @Description: 日记实体类
  */
 // These additional imports are necessary to open the sqlite3 database
 import 'dart:io';
@@ -22,8 +22,10 @@ class JournalTable extends Table {
   TextColumn get title => text().nullable()(); // 日记标题-留作备用
   TextColumn get content => text()(); // 日记内容
   IntColumn get timeSinceLastEntry => integer().nullable()(); // 距离上一条日记创建时间
-  DateTimeColumn get createTime => dateTime().withDefault(currentDateAndTime)(); // 日记创建时间
-  DateTimeColumn get updateTime => dateTime().withDefault(currentDateAndTime)(); // 日记更新时间
+  DateTimeColumn get createTime =>
+      dateTime().withDefault(currentDateAndTime)(); // 日记创建时间
+  DateTimeColumn get updateTime =>
+      dateTime().withDefault(currentDateAndTime)(); // 日记更新时间
 }
 
 @DriftDatabase(tables: [JournalTable])
@@ -64,4 +66,3 @@ LazyDatabase _openConnection() {
     return NativeDatabase.createInBackground(file);
   });
 }
-
