@@ -1,7 +1,7 @@
 /*
  * @Author: love-yuri yuri2078170658@gmail.com
  * @Date: 2024-06-23 19:58:11
- * @LastEditTime: 2024-06-24 19:40:20
+ * @LastEditTime: 2024-06-25 22:55:06
  * @Description: home页面
  */
 import 'package:flutter/material.dart';
@@ -9,11 +9,44 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:journal/base/assets.dart';
 import 'package:journal/base/route.dart';
 import 'package:journal/components/journal_card.dart';
+import 'package:journal/moor/entiy/journal.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
+  @override
+  State<StatefulWidget> createState() {
+    return _HomePageState();
+  }
+}
+
+class _HomePageState extends State<HomePage> {
+  List<JournalTableData> _journals = [];
+  final refreshController = RefreshController(initialRefresh: false);
+
+  void initData() async {
+    var db = JournalDatabase.instance;
+    await db.select(db.journalTable).get().then((newJournals) {
+      setState(() {
+        _journals = newJournals;
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    initData();
+  }
+
+  void _onRefresh() async {
+    // 下拉刷新
+    initData();
+    refreshController.refreshCompleted();
+  }
+
+  /* ui部分 */
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -26,13 +59,6 @@ class HomePage extends StatelessWidget {
         )
       ],
     );
-    // return Container(
-    //   padding: EdgeInsets.all(10.r),
-    //   decoration: BoxDecoration(
-    //     gradient: GradientManager.bg,
-    //   ),
-    //   child: _child(),
-    // );
   }
 
   // home界面主要child
@@ -42,23 +68,21 @@ class HomePage extends StatelessWidget {
       body: _refresher(),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
-        onPressed: () => {},
+        onPressed: () async {
+          await Navigator.pushNamed(context, RouteManager.detail);
+          // TODO(windows开发使用, 发布请删除)
+          initData();
+        },
       ),
     );
   }
 
   // 下拉/上滑刷新
   SmartRefresher _refresher() {
-    RefreshController refreshController =
-        RefreshController(initialRefresh: false);
     return SmartRefresher(
       controller: refreshController,
       enablePullDown: true,
-      onRefresh: () async {
-        // 下拉刷新
-        await Future.delayed(const Duration(milliseconds: 1000));
-        refreshController.refreshCompleted();
-      },
+      onRefresh: _onRefresh,
       header: const WaterDropHeader(),
       child: SafeArea(
         child: SingleChildScrollView(
@@ -75,12 +99,12 @@ class HomePage extends StatelessWidget {
   // 日记显示listview
   ListView _listView() {
     return ListView.separated(
-      itemCount: 10,
+      itemCount: _journals.length,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemBuilder: (context, index) {
         Widget child;
-        if (index == 2) {
+        if (index == -1) {
           child = const Text(
             "2022年2月",
             style: TextStyle(
@@ -89,12 +113,17 @@ class HomePage extends StatelessWidget {
                 fontWeight: FontWeight.w800),
           );
         } else {
-          child = const JournalCard();
+          child = JournalCard(
+            journal: _journals[index],
+          );
         }
         return InkWell(
-          onTap: () {
+          onTap: () async {
             // 跳转到日记详情页
-            Navigator.pushNamed(context, RouteManager.detail);
+            await Navigator.pushNamed(context, RouteManager.detail,
+                arguments: _journals[index]);
+            // TODO(windows开发使用, 发布请删除)
+            initData();
           },
           child: child,
         );
