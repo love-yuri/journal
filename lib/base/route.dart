@@ -1,3 +1,9 @@
+/*
+ * @Author: love-yuri yuri2078170658@gmail.com
+ * @Date: 2024-06-23 19:51:36
+ * @LastEditTime: 2024-06-25 21:31:09
+ * @Description: 
+ */
 import 'package:flutter/material.dart';
 import 'package:journal/page/detail.dart';
 import 'package:journal/page/home.dart';
@@ -15,7 +21,7 @@ class RouteManager {
         );
       case detail:
         return buildPage(
-          const DetailPage(),
+          DetailPage(),
           settings: settings,
         );
       default:
