@@ -1,15 +1,20 @@
 /*
  * @Author: love-yuri yuri2078170658@gmail.com
  * @Date: 2024-06-23 21:56:57
- * @LastEditTime: 2024-06-24 18:58:47
+ * @LastEditTime: 2024-06-25 16:57:43
  * @Description: 卡片
  */
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:journal/moor/entiy/journal.dart';
 import 'package:journal/utils/utils.dart';
 
 class JournalCard extends StatefulWidget {
-  const JournalCard({super.key});
+  final JournalTableData journal;
+  const JournalCard({
+    super.key,
+    required this.journal,
+  });
 
   @override
   State<StatefulWidget> createState() {
@@ -28,7 +33,7 @@ class _JournalCardState extends State<JournalCard> {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Column(children: [
-         Row(
+        Row(
           children: [
             const Text(
               "12月30日",
@@ -51,10 +56,10 @@ class _JournalCardState extends State<JournalCard> {
         Container(
           width: double.infinity,
           decoration: const BoxDecoration(),
-          child: const Text(
+          child: Text(
             overflow: TextOverflow.ellipsis,
-            "Flutter 的布局系统会根据上级组件的约束assets/bg/ec006809-cb34-42b9-bc80-5902d06419f7.jpgassets/bg/ec006809-cb34-42b9-bc80-5902d06419f7.jpgassets/bg/ec006809-cb34-42b9-bc80-5902d06419f7.jpgassets/bg/ec006809-cb34-42b9-bc80-5902d06419f7.jpgassets/bg/ec006809-cb34-42b9-bc80-5902d06419f7.jpg",
-            style: TextStyle(
+            widget.journal.content,
+            style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.bold,
             ),
