@@ -1,7 +1,7 @@
 /*
  * @Author: love-yuri yuri2078170658@gmail.com
  * @Date: 2024-06-24 18:54:03
- * @LastEditTime: 2024-06-24 23:14:00
+ * @LastEditTime: 2024-06-25 21:25:53
  * @Description: 通用工具
  */
 import 'dart:ui';
@@ -21,10 +21,15 @@ class Utils {
     return Color(int.parse(hexColor, radix: 16));
   }
 
-  static String now() {
-    final dateTime = DateTime.now();
-    final formatted = '${dateTime.year}-${_twoDigits(dateTime.month)}-${_twoDigits(dateTime.day)} '
-                      '${_twoDigits(dateTime.hour)}:${_twoDigits(dateTime.minute)}:${_twoDigits(dateTime.second)}';
+  // 获取当前时间字符串
+  static get now {
+    return timeFormat(DateTime.now());
+  }
+
+  static String timeFormat(DateTime dateTime) {
+    final formatted =
+        '${dateTime.year}-${_twoDigits(dateTime.month)}-${_twoDigits(dateTime.day)} '
+        '${_twoDigits(dateTime.hour)}:${_twoDigits(dateTime.minute)}:${_twoDigits(dateTime.second)}';
     return formatted;
   }
 
