@@ -6,7 +6,7 @@
  */
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:journal/base/assets.dart';
+import 'package:journal/base/config.dart';
 import 'package:journal/base/route.dart';
 import 'package:journal/components/journal_card.dart';
 import 'package:journal/moor/entiy/journal.dart';
@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        Image.asset(AssetsManager.homeBg, fit: BoxFit.cover),
+        Image.asset(AssetsConfig.homeBg, fit: BoxFit.cover),
         Padding(
           padding: EdgeInsets.all(10.r),
           child: _child(),
