@@ -1,11 +1,15 @@
 /*
  * @Author: love-yuri yuri2078170658@gmail.com
  * @Date: 2024-06-23 22:59:06
- * @LastEditTime: 2024-06-25 22:58:30
+ * @LastEditTime: 2024-06-26 23:33:01
  * @Description: 日记详情-编辑
  */
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:journal/base/log.dart';
 import 'package:journal/components/journal_input.dart';
+import 'package:journal/http/webdav.dart';
 import 'package:journal/moor/entiy/journal.dart';
 import 'package:journal/utils/utils.dart';
 import 'package:provider/provider.dart';
@@ -52,6 +56,12 @@ class _DetailPageState extends State<DetailPage> {
 
   void _webdav() async {
     // Webdav.instance.fetchWebDavContent();
+    // Webdav.instance.mkdir("yuri_is");
+    File file = File('C:\\Users\\20781\\Documents\\新闻发布系统软件产品使用说明书.md');
+    await Webdav.instance.upload("yuri_is", file);
+    // var dir = await Webdav.instance.dir("test");
+    // log.d(dir);
+    // Webdav.instance;
     // WidgetsFlutterBinding.ensureInitialized();
 
     // final database = JournalDatabase.instance;
