@@ -2,13 +2,19 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
+import 'package:path/path.dart' as p;
+import 'package:journal/base/config.dart';
+import 'package:journal/base/log.dart';
 import 'package:xml/xml.dart';
 
+// TODO: 文件格式太丑，开发完成记得格式化
+
+// webdav类
 class Webdav {
-  final _host = "https://dav.jianguoyun.com";
-  final _username = "2078170658@qq.com";
-  final _password = "anp5yqxr435upzhu";
+  late String _host;
+  late String _username;
+  late String _password;
+
   final _dio = Dio();
 
   // 配置参数
@@ -17,6 +23,10 @@ class Webdav {
   static Webdav? _instance;
 
   Webdav._() {
+    _host = WebdavConfig.host;
+    _username = WebdavConfig.username;
+    _password = WebdavConfig.password;
+
     _dio.options = BaseOptions(
       sendTimeout: duration,
       receiveTimeout: duration,
@@ -29,11 +39,10 @@ class Webdav {
     return _instance!;
   }
 
-  Future<void> fetchWebDavContent() async {
+  Future<WebdavFile?> dir(String dirName) async {
     try {
-      // 发送 PROPFIND 请求
       final response = await _dio.request(
-        "$_host/dav/test/",
+        "$_host/dav/$dirName/",
         options: Options(
           method: 'PROPFIND',
           responseType: ResponseType.plain,
@@ -44,61 +53,106 @@ class Webdav {
           },
         ),
       );
-      var xmld = XmlDocument.parse(response.data);
-      for (var x in xmld.findAllElements("d:response")) {
-        debugPrint(
-            "name: ${x.findElements("d:href").first} isFile: ${x.findElements("d:propstat").firstOrNull?.findElements('d:prop').firstOrNull?.findElements("d:resourcetype").firstOrNull?.innerXml.isEmpty}");
+      var xmld = XmlDocument.parse(response.data).findAllElements("d:response");
+      var parent = _parseXml(xmld.first, null);
+      parent.children = [];
+
+      for (int i = 1; i < xmld.length; i++) {
+        final xml = xmld.elementAt(i);
+        parent.children!.add(_parseXml(xml, parent.path));
       }
-      // debugPrint(response.data);
+      return parent;
     } catch (e) {
-      debugPrint('Error fetching WebDAV content: $e');
+      log.e('Error fetching WebDAV content: $e');
     }
+    return null;
   }
 
-  // Future<void> fetchWebDavContent() async {
-  //   try {
-  //     // 发送 PROPFIND 请求
-  //     const baseUrl = "https://dav.jianguoyun.com";
-  //     final response = await _dio.request(
-  //       "$baseUrl/dav/test/",
-  //       options: Options(
-  //         method: 'PROPFIND',
-  //         responseType: ResponseType.plain,
-  //         headers: {
-  //           HttpHeaders.authorizationHeader:
-  //               'Basic ${base64Encode(utf8.encode('$_username:$_password'))}', // 替换为你的用户名和密码
-  //           HttpHeaders.contentTypeHeader: 'text/xml',
-  //         },
-  //       ),
-  //     );
-  //     var xmld = XmlDocument.parse(response.data);
-  //     for (var x in xmld.findAllElements("d:response")) {
-  //       debugPrint(
-  //           "name: ${x.findElements("d:href").first} isFile: ${x.findElements("d:propstat").firstOrNull?.findElements('d:prop').firstOrNull?.findElements("d:resourcetype").firstOrNull?.innerXml.isEmpty}");
-  //     }
-  //     // debugPrint(response.data);
-  //   } catch (e) {
-  //     debugPrint('Error fetching WebDAV content: $e');
-  //   }
-  // }
+  Future<bool> mkdir(String dirName) async {
+    try {
+      // 发送 PROPFIND 请求
+      final response = await _dio.request(
+        "$_host/dav/$dirName/",
+        options: Options(
+          method: 'MKCOL',
+          headers: {
+            HttpHeaders.authorizationHeader:
+                'Basic ${base64Encode(utf8.encode('$_username:$_password'))}', // 替换为你的用户名和密码
+            HttpHeaders.contentTypeHeader: 'text/xml',
+          },
+        ),
+      );
+      return response.statusCode == 201;
+    } catch (e) {
+      log.e('Error fetching WebDAV content: $e');
+    }
+    return false;
+  }
 
-  // Future<void> fetchWebDavContent() async {
-  //   try {
-  //     // 发送 PROPFIND 请求
-  //     final response = await _dio.request(
-  //       "https://dav.jianguoyun.com/dav/test/",
-  //       options: Options(
-  //         method: 'MKCOL',
-  //         responseType: ResponseType.json,
-  //         headers: {
-  //           HttpHeaders.authorizationHeader: 'Basic ${base64Encode(utf8.encode('$_username:$_password'))}', // 替换为你的用户名和密码
-  //           HttpHeaders.contentTypeHeader: 'text/xml',
-  //         },
-  //       ),
-  //     );
-  //     debugPrint(response.data);
-  //   } catch (e) {
-  //     debugPrint('Error fetching WebDAV content: $e');
-  //   }
-  // }
+  Future<bool> upload(String dirName, File file) async {
+    try {
+      if (!file.existsSync()) {
+        return false;
+      }
+      final response = await _dio.request(
+        data: file.openRead(),
+        "$_host/dav/$dirName/${p.basename(file.path)}",
+        options: Options(
+          method: 'PUT',
+          headers: {
+            HttpHeaders.authorizationHeader:'Basic ${base64Encode(utf8.encode('$_username:$_password'))}', // 替换为你的用户名和密码
+            HttpHeaders.contentTypeHeader: 'application/octet-stream',
+            HttpHeaders.contentLengthHeader: await file.length()
+          },
+        ),
+      );
+      return response.statusCode == 201 || response.statusCode == 204;
+    } catch (e) {
+      log.e('Error fetching WebDAV content: ${e.toString()}');
+    }
+    return false;
+  }
+
+  WebdavFile _parseXml(XmlElement xml, String? parent) {
+    final name = xml.findElements("d:href").first.innerText;
+    final isFile = xml
+        .findElements("d:propstat")
+        .first
+        .findElements('d:prop')
+        .first
+        .findElements("d:resourcetype")
+        .first
+        .innerXml
+        .isEmpty;
+
+    final isFolder = !isFile;
+    return WebdavFile(
+        isFile: isFile, isFolder: isFolder, parent: parent, path: name);
+  }
+}
+
+class WebdavFile {
+  final bool isFile;
+  final bool isFolder;
+  final String path;
+  final String? parent;
+  List<WebdavFile>? children;
+
+  WebdavFile(
+      {required this.isFile,
+      required this.isFolder,
+      required this.path,
+      this.parent,
+      this.children});
+
+  @override
+  String toString() {
+    return """
+
+        isFile: $isFile
+        path: $path
+        parent: $parent
+        children: $children
+      """;
+  }
 }
