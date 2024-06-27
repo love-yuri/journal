@@ -1,12 +1,13 @@
 /*
  * @Author: love-yuri yuri2078170658@gmail.com
  * @Date: 2024-06-23 22:59:06
- * @LastEditTime: 2024-06-26 23:33:01
+ * @LastEditTime: 2024-06-27 22:34:47
  * @Description: 日记详情-编辑
  */
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:journal/base/config.dart';
 import 'package:journal/base/log.dart';
 import 'package:journal/components/journal_input.dart';
 import 'package:journal/http/webdav.dart';
@@ -33,11 +34,11 @@ class DetailPage extends StatefulWidget {
 
 class _DetailPageState extends State<DetailPage> {
   JournalTableData? _journal;
-
+  
   @override
-  void initState() {
-    super.initState();
-    _webdav();
+  void dispose() {
+    super.dispose();
+    _savaJournal();
   }
 
   // 初始化日记数据
@@ -54,32 +55,9 @@ class _DetailPageState extends State<DetailPage> {
     widget._journalInputModel.onChanged(_journal!.content);
   }
 
-  void _webdav() async {
-    // Webdav.instance.fetchWebDavContent();
-    // Webdav.instance.mkdir("yuri_is");
-    File file = File('C:\\Users\\20781\\Documents\\新闻发布系统软件产品使用说明书.md');
-    await Webdav.instance.upload("yuri_is", file);
-    // var dir = await Webdav.instance.dir("test");
-    // log.d(dir);
-    // Webdav.instance;
-    // WidgetsFlutterBinding.ensureInitialized();
-
-    // final database = JournalDatabase.instance;
-    // database.into(database.journalTable).insert(
-    //       JournalTableCompanion.insert(
-    //         content: "yuri ${Utils.now()}",
-    //       ),
-    //     );
-    // database.select(database.journalTable).get().then((values) {
-    //   for (var element in values) {
-    //     debugPrint(element.content);
-    //   }
-    // });
-    // debugPrint('items in database: $allItems');
-  }
-
   // 保存/更新日记
   void _savaJournal() {
+    log.d("保存数据");
     var db = JournalDatabase.instance;
     if (_journal!.id == -1 &&
         (widget._journalInput.text?.isNotEmpty ?? false)) {
@@ -116,12 +94,12 @@ class _DetailPageState extends State<DetailPage> {
             title: const Text("日记详情"),
             leading: IconButton(
               icon: const Icon(Icons.close),
+              tooltip: "返回",
               onPressed: () {
-                _savaJournal();
-                Navigator.of(context).pop('referesh');
+                Navigator.of(context).pop();
               },
             ),
-            actions: <Widget>[
+            actions: <Widget> [
               PopupMenuButton<String>(
                 onSelected: (String result) {
                   switch (result) {
