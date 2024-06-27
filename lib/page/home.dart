@@ -1,12 +1,13 @@
 /*
  * @Author: love-yuri yuri2078170658@gmail.com
  * @Date: 2024-06-23 19:58:11
- * @LastEditTime: 2024-06-25 22:55:06
+ * @LastEditTime: 2024-06-27 22:35:33
  * @Description: home页面
  */
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:journal/base/config.dart';
+import 'package:journal/base/log.dart';
 import 'package:journal/base/route.dart';
 import 'package:journal/components/journal_card.dart';
 import 'package:journal/moor/entiy/journal.dart';
@@ -19,12 +20,19 @@ class HomePage extends StatefulWidget {
   State<StatefulWidget> createState() {
     return _HomePageState();
   }
+
 }
 
 class _HomePageState extends State<HomePage> {
   List<JournalTableData> _journals = [];
   final refreshController = RefreshController(initialRefresh: false);
 
+  @override
+  void dispose() {
+    super.dispose();
+    log.d("dispose");
+  }
+  
   void initData() async {
     var db = JournalDatabase.instance;
     await db.select(db.journalTable).get().then((newJournals) {
@@ -70,7 +78,6 @@ class _HomePageState extends State<HomePage> {
         child: const Icon(Icons.add),
         onPressed: () async {
           await Navigator.pushNamed(context, RouteManager.detail);
-          // TODO(windows开发使用, 发布请删除)
           initData();
         },
       ),
@@ -122,7 +129,6 @@ class _HomePageState extends State<HomePage> {
             // 跳转到日记详情页
             await Navigator.pushNamed(context, RouteManager.detail,
                 arguments: _journals[index]);
-            // TODO(windows开发使用, 发布请删除)
             initData();
           },
           child: child,
