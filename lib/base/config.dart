@@ -30,5 +30,5 @@ class WebdavConfig {
   static get host => 'https://dav.jianguoyun.com';
   static get username => '2078170658@qq.com';
   static get password => 'anp5yqxr435upzhu';
-  static get folder => 'journal/';
+  static get dbFolder => 'journal'; // 数据库上传的文件夹名称
 }
