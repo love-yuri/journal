@@ -7,8 +7,6 @@ import 'package:journal/base/config.dart';
 import 'package:journal/base/log.dart';
 import 'package:xml/xml.dart';
 
-// TODO: 文件格式太丑，开发完成记得格式化
-
 // webdav类
 class Webdav {
   late String _host;
@@ -115,19 +113,13 @@ class Webdav {
 
   WebdavFile _parseXml(XmlElement xml, String? parent) {
     final name = xml.findElements("d:href").first.innerText;
-    final isFile = xml
-        .findElements("d:propstat")
-        .first
-        .findElements('d:prop')
-        .first
-        .findElements("d:resourcetype")
-        .first
-        .innerXml
-        .isEmpty;
+    final isFile = xml.findElements("d:propstat").first
+      .findElements('d:prop').first
+      .findElements("d:resourcetype").first
+      .innerXml.isEmpty;
 
     final isFolder = !isFile;
-    return WebdavFile(
-        isFile: isFile, isFolder: isFolder, parent: parent, path: name);
+    return WebdavFile(isFile: isFile, isFolder: isFolder, parent: parent, path: name);
   }
 }
 
@@ -138,12 +130,13 @@ class WebdavFile {
   final String? parent;
   List<WebdavFile>? children;
 
-  WebdavFile(
-      {required this.isFile,
-      required this.isFolder,
-      required this.path,
-      this.parent,
-      this.children});
+  WebdavFile({
+    required this.isFile,
+    required this.isFolder,
+    required this.path,
+    this.parent,
+    this.children
+  });
 
   @override
   String toString() {
